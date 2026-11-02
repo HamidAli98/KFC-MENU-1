@@ -216,11 +216,33 @@ if st.session_state["show_result"] and st.session_state["selected_product"]:
         st.success(f"Selected: {selected[product_col]}")
         st.subheader(f"🥡 {selected[product_col]}")
 
-        # Show an ingredients list only when the source dataset actually has one.
-        # The nutrition/allergen "Menu information" metrics section has been removed.
         if ingredients_col:
             st.markdown("**Ingredients**")
             st.write(clean_text(selected[ingredients_col]))
+        else:
+            st.info(
+                "The uploaded nutrition booklet does not include a full ingredients column. "
+                "I won't invent an ingredient list. The available allergen information is shown below."
+            )
+
+        detail_cols = [
+            ("Allergens", allergen_col),
+            ("MSG information", msg_col),
+            ("Caffeine / artificial sweetener", caffeine_col),
+            ("Energy", energy_col),
+            ("Protein", protein_col),
+            ("Carbohydrates", carb_col),
+            ("Total fat", fat_col),
+            ("Sugar", sugar_col),
+            ("Sodium", sodium_col),
+        ]
+        available = [(label, col) for label, col in detail_cols if col]
+        if available:
+            st.markdown("**Menu information**")
+            cards = st.columns(3)
+            for i, (label, col) in enumerate(available):
+                with cards[i % 3]:
+                    st.metric(label, clean_text(selected[col]))
 
         st.subheader("You may also like")
         recommendations = similar_items(menu, product_col, selected, limit=5)
